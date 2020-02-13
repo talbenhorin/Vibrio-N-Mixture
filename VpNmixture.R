@@ -37,7 +37,6 @@ cat(
     }
     tau_U ~ dgamma(0.1,0.1)
     tau_V ~ dgamma(0.1,0.1)
-    tau_all ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
     b1 ~ dnorm(0,0.1)
     b2 ~ dnorm(0,0.1)
@@ -49,9 +48,9 @@ cat(
 )
 
 # Initial params BOTH YEARS
-m1.inits <- list(list("U"=numeric(996),"V"=numeric(20),"tau_all"=0.1,"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
-                 list("U"=numeric(996),"V"=numeric(20),"tau_all"=0.01,"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
-                 list("U"=numeric(996),"V"=numeric(20),"tau_all"=0.01,"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0))
+m1.inits <- list(list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
+                 list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
+                 list("U"=numeric(996),"V"=numeric(20),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0))
 
 parameters <- c("U","V","b0","b1","b2","b3","b4","b5")
 
@@ -60,8 +59,8 @@ m1 <- jags(data = m1.dat,
            parameters.to.save = parameters,
            model.file = "m1.jag",
            n.chains = 3,
-           n.iter = 5000,
-           n.burnin = 2000,
+           n.iter = 500,
+           n.burnin = 200,
            n.thin = 3)  
 
 # Posterior Median and Highest Posterior Density Intervals
