@@ -17,9 +17,6 @@ library(MCMCvis)
 dat <- read.csv("seagrantvibrio.csv", fill = FALSE, header = TRUE) 
 m1.dat<-list(c=dat$path,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$t2,mod=dat$mod,hi=dat$hi,time=dat$time)
 
-# Mixed-effects model
-# Only intercepts are random, but slopes are identical for all groups 
-
 # N-Mixture model for serial dilution data 
 cat(
   "model{
@@ -29,8 +26,8 @@ cat(
       p[i] <- 1-exp(-MPN[i]*v[i])
       
       # Biological model for microbial abundance
-      log(MPN[i]) ~ dpois(lambda[i])
-      lambda[i] <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] + V[time[i]]
+      MPN[i] ~ dpois(lambda[i])
+      log(lambda[i]) <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] + V[time[i]]
     }
     for (s in 1:996) {
       U[s] ~ dnorm(0,tau_U)
@@ -79,4 +76,19 @@ out95<-hdi(list(m1$BUGSoutput$sims.list$b0,
                 m1$BUGSoutput$sims.list$b4,
                 m1$BUGSoutput$sims.list$b5))
 
-
+# output file
+med <- rbind(out[3],out[4],out[5],out[6],out[7],out[8])
+lower <- rbind(out95[[1]][1,],
+               out95[[2]][1,],
+               out95[[3]][1,],
+               out95[[4]][1,],
+               out95[[5]][1,],
+               out95[[6]][1,])
+upper <- rbind(out95[[1]][2,],
+               out95[[2]][2,],
+               out95[[3]][2,],
+               out95[[4]][2,],
+               out95[[5]][2,],
+               out95[[6]][2,])
+Iwant <-data.frame(as.numeric(med), lower, upper)
+write.csv(Iwant,file = "output.csv", row.names = FALSE)
