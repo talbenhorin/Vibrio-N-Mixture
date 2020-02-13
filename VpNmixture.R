@@ -26,11 +26,11 @@ cat(
     for (i in 1:5320) {
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
-      p[i] <- 1-exp(-lambda[i]*v[i])
+      p[i] <- 1-exp(-MPN[i]*v[i])
       
       # Biological model for microbial abundance
-      lambda[i] ~ dlnorm(mu[i],tau_all)
-      mu[i] <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] + V[time[i]]
+      log(MPN[i]) ~ dpois(lambda[i])
+      lambda[i] <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] + V[time[i]]
     }
     for (s in 1:996) {
       U[s] ~ dnorm(0,tau_U)
@@ -72,10 +72,11 @@ out<-MCMCpstr(m1,
               params = parameters,
               func = median,
               type = 'summary')
-out95<-hdi(list(m1$BUGSoutput$sims.list$b0,m1$BUGSoutput$sims.list$b1,m1$BUGSoutput$sims.list$b2,m1$BUGSoutput$sims.list$b3,m1$BUGSoutput$sims.list$b4,m1$BUGSoutput$sims.list$b5))
-# output file
-med <- rbind(out[3],out[4],out[5],out[6],out[7],out[8])
-lower <- rbind(out95[[1]][1,],out95[[2]][1,],out95[[3]][1,],out95[[4]][1,],out95[[5]][1,],out95[[6]][1,])
-upper <- rbind(out95[[1]][2,],out95[[2]][2,],out95[[3]][2,],out95[[4]][2,],out95[[5]][2,],out95[[6]][2,])
-Iwant <-data.frame(as.numeric(med), lower, upper)
-write.csv(Iwant,file = "output.csv", row.names = FALSE)
+out95<-hdi(list(m1$BUGSoutput$sims.list$b0,
+                m1$BUGSoutput$sims.list$b1,
+                m1$BUGSoutput$sims.list$b2,
+                m1$BUGSoutput$sims.list$b3,
+                m1$BUGSoutput$sims.list$b4,
+                m1$BUGSoutput$sims.list$b5))
+
+
