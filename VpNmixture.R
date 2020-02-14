@@ -27,7 +27,7 @@ cat(
       
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
-      log(lambda[i]) <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] + V[time[i]]
+      log(lambda[i]) <- b0 + b1*gear[i] + b2*tide[i] + b3*gear[i]*tide[i] + b4*mod[i] + b5*hi[i] + U[samp[i]] +V[time[i]]
     }
     for (s in 1:996) {
       U[s] ~ dnorm(0,tau_U)
@@ -52,15 +52,15 @@ m1.inits <- list(list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.1,"tau_V"=0.1,"
                  list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
                  list("U"=numeric(996),"V"=numeric(20),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0))
 
-parameters <- c("U","V","b0","b1","b2","b3","b4","b5")
+parameters <- c("U","b0","b1","b2","b3","b4","b5")
 
 m1 <- jags(data = m1.dat,
            inits = m1.inits,
            parameters.to.save = parameters,
            model.file = "m1.jag",
            n.chains = 3,
-           n.iter = 500,
-           n.burnin = 200,
+           n.iter = 2000,
+           n.burnin = 500,
            n.thin = 3)  
 
 # Posterior Median and Highest Posterior Density Intervals
@@ -76,7 +76,7 @@ out95<-hdi(list(m1$BUGSoutput$sims.list$b0,
                 m1$BUGSoutput$sims.list$b5))
 
 # output file
-med <- rbind(out[3],out[4],out[5],out[6],out[7],out[8])
+med <- rbind(out[2],out[3],out[4],out[5],out[6],out[7])
 lower <- rbind(out95[[1]][1,],
                out95[[2]][1,],
                out95[[3]][1,],
