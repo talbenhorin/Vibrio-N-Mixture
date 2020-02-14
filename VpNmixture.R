@@ -13,6 +13,7 @@ library(R2jags)
 library(loo)
 library(HDInterval)
 library(MCMCvis)
+library(ggplot2)
 
 dat <- read.csv("seagrantvibrio.csv", fill = FALSE, header = TRUE) 
 m1.dat<-list(c=dat$path,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$t2,mod=dat$mod,hi=dat$hi,time=dat$time)
@@ -59,9 +60,24 @@ m1 <- jags(data = m1.dat,
            parameters.to.save = parameters,
            model.file = "m1.jag",
            n.chains = 3,
-           n.iter = 2000,
-           n.burnin = 500,
+           n.iter = 4000,
+           n.burnin = 1000,
            n.thin = 3)  
+
+
+outvals <- data.frame(
+  b0=m1$BUGSoutput$sims.list$b0,
+  b1=m1$BUGSoutput$sims.list$b1,
+  b2=m1$BUGSoutput$sims.list$b2,
+  b3=m1$BUGSoutput$sims.list$b3,
+  b4=m1$BUGSoutput$sims.list$b4,
+  b5=m1$BUGSoutput$sims.list$b5)
+  
+ggplot(outvals, aes(x=b3)) + geom_histogram()
+ggplot(outvals, aes(x=b3)) + 
+  geom_histogram(aes(y=..density..), colour="red", fill="white")+
+  geom_density(alpha=.2, fill="#FF6666") 
+
 
 # Posterior Median and Highest Posterior Density Intervals
 out<-MCMCpstr(m1,
@@ -75,19 +91,3 @@ out95<-hdi(list(m1$BUGSoutput$sims.list$b0,
                 m1$BUGSoutput$sims.list$b4,
                 m1$BUGSoutput$sims.list$b5))
 
-# output file
-med <- rbind(out[2],out[3],out[4],out[5],out[6],out[7])
-lower <- rbind(out95[[1]][1,],
-               out95[[2]][1,],
-               out95[[3]][1,],
-               out95[[4]][1,],
-               out95[[5]][1,],
-               out95[[6]][1,])
-upper <- rbind(out95[[1]][2,],
-               out95[[2]][2,],
-               out95[[3]][2,],
-               out95[[4]][2,],
-               out95[[5]][2,],
-               out95[[6]][2,])
-Iwant <-data.frame(as.numeric(med), lower, upper)
-write.csv(Iwant,file = "output.csv", row.names = FALSE)
