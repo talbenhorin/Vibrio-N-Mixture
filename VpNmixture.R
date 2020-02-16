@@ -39,10 +39,15 @@ cat(
     tau_V ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
     b1 ~ dnorm(0,0.1)
+    LOR1 <- exp(b1)
     b2 ~ dnorm(0,0.1)
+    LOR2 <- exp(b2)
     b3 ~ dnorm(0,0.1)
+    LOR3 <- exp(b3)
     b4 ~ dnorm(0,0.1)
+    LOR4 <- exp(b4)
     b5 ~ dnorm(0,0.1)
+    LOR5 <- exp(b5)
   }",
   file="m1.jag"
 )
@@ -52,7 +57,7 @@ m1.inits <- list(list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.1,"tau_V"=0.1,"
                  list("U"=numeric(996),"V"=numeric(20),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0),
                  list("U"=numeric(996),"V"=numeric(20),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0,"b3"=0,"b4"=0,"b5"=0))
 
-parameters <- c("b0","b1","b2","b3","b4","b5")
+parameters <- c("b0","LOR1","LOR2","LOR3","LOR4","LOR5")
 
 m1.total <- list(c=dat$tlh,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$t2,mod=dat$mod,hi=dat$hi,time=dat$time) #data string, total vibrio
 m1.path <-list(c=dat$path,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$t2,mod=dat$mod,hi=dat$hi,time=dat$time) #data string, pathogenic vibrio
@@ -62,7 +67,7 @@ mTotal <- jags(data = m1.total,
                 parameters.to.save = parameters,
                 model.file = "m1.jag",
                 n.chains = 3,
-                n.iter = 4000,
+                n.iter = 10000,
                 n.burnin = 1000,
                 n.thin = 3)  
 
@@ -71,13 +76,13 @@ mPath <- jags(data = m1.path,
                 parameters.to.save = parameters,
                 model.file = "m1.jag",
                 n.chains = 3,
-                n.iter = 4000,
+                n.iter = 10000,
                 n.burnin = 1000,
                 n.thin = 3)
 
 out <- data.frame(
-  Total=mTotal$BUGSoutput$sims.list$b3,
-  Pathogenic=mPath$BUGSoutput$sims.list$b3)
+  Total=mTotal$BUGSoutput$sims.list$LOR3,
+  Pathogenic=mPath$BUGSoutput$sims.list$LOR3)
 b3 <- stack(out,select=c('Total','Pathogenic'))
 names(b3) <- c("values","vibrio")
 
