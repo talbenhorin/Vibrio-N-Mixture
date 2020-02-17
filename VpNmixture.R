@@ -8,12 +8,14 @@ rm(list=ls(all=TRUE))
 #install.packages("R2jags")
 #install.packages("hdi")
 #install.packages("MCMCvis")
+#install.packages("patchwork")
 
 library(R2jags)
 library(loo)
 library(HDInterval)
 library(MCMCvis)
 library(ggplot2)
+library(patchwork)
 
 dat <- read.csv("seagrantvibrio.csv", fill = FALSE, header = TRUE) 
 
@@ -80,19 +82,25 @@ mPath <- jags(data = m1.path,
                 n.burnin = 1000,
                 n.thin = 3)
 
-out <- data.frame(
+out0 <- data.frame(
+  Total=mTotal$BUGSoutput$sims.list$b0,
+  Pathogenic=mPath$BUGSoutput$sims.list$b0)
+b0 <- stack(out0,select=c('Total','Pathogenic'))
+names(b0) <- c("values","vibrio")
+
+out3 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR3,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR3)
-b3 <- stack(out,select=c('Total','Pathogenic'))
+b3 <- stack(out3,select=c('Total','Pathogenic'))
 names(b3) <- c("values","vibrio")
 
-ggplot(b3, aes(x=values, fill=vibrio))+ 
+
+p1 <- ggplot(b0, aes(x=values, fill=vibrio))+ 
+  geom_density(alpha=0.4)+
+  theme_light()+
+  labs(title=expression(beta[0]),x = "", y = "")
+p2 <- ggplot(b3, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_light()+
   labs(title=expression(beta[3]),x = "", y = "")
-  
-
-
-
-  
-
+(p1 / p2)
