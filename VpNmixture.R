@@ -123,9 +123,9 @@ names(b5) <- c("values","vibrio")
 
 p0 <- ggplot(b0, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
-  scale_x_log10(breaks = c(1,10,100,1000),
-                labels = c("1" = "1","10" = "10","100"="100","1000"="1000"))+
+  theme_classic()+
+  scale_x_log10(breaks = c(1,10,100,1000,10000),
+                labels = c("1" = "1","10" = "10","100"="100","1000"="1000","10000"="10000"))+
   labs(title=expression(beta[0]),x = "", y = "")+
   theme(plot.title = element_text(hjust = 0.5))
 p1 <- ggplot(b1, aes(x=values, fill=vibrio))+ 
