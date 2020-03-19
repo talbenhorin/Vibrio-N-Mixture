@@ -9,6 +9,7 @@ rm(list=ls(all=TRUE))
 #install.packages("hdi")
 #install.packages("MCMCvis")
 #install.packages("patchwork")
+#install.packages("ggdistribute")
 
 library(R2jags)
 library(loo)
@@ -17,6 +18,7 @@ library(MCMCvis)
 library(ggplot2)
 library(patchwork)
 library(scales)
+library(ggdistribute)
 
 dat <- read.csv("seagrantvibrio.csv", fill = FALSE, header = TRUE) 
 
@@ -87,75 +89,93 @@ mPath <- jags(data = m1.path,
 out0 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR0,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR0)
-b0 <- stack(out0,select=c('Total','Pathogenic'))
+b0 <- stack(out0,select=c('Total Vp','Pathogenic Vp'))
 names(b0) <- c("values","vibrio")
 
 out1 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR1,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR1)
-b1 <- stack(out1,select=c('Total','Pathogenic'))
+b1 <- stack(out1,select=c('Total Vp','Pathogenic Vp'))
 names(b1) <- c("values","vibrio")
 
 out2 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR2,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR2)
-b2 <- stack(out2,select=c('Total','Pathogenic'))
+b2 <- stack(out2,select=c('Total Vp','Pathogenic Vp'))
 names(b2) <- c("values","vibrio")
 
 out3 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR3,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR3)
-b3 <- stack(out3,select=c('Total','Pathogenic'))
+b3 <- stack(out3,select=c('Total Vp','Pathogenic Vp'))
 names(b3) <- c("values","vibrio")
 
 out4 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR4,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR4)
-b4 <- stack(out4,select=c('Total','Pathogenic'))
+b4 <- stack(out4,select=c('Total Vp','Pathogenic Vp'))
 names(b4) <- c("values","vibrio")
 
 out5 <- data.frame(
   Total=mTotal$BUGSoutput$sims.list$LOR5,
   Pathogenic=mPath$BUGSoutput$sims.list$LOR5)
-b5 <- stack(out5,select=c('Total','Pathogenic'))
+b5 <- stack(out5,select=c('Total Vp','Pathogenic Vp'))
 names(b5) <- c("values","vibrio")
 
 
 p0 <- ggplot(b0, aes(x=values, fill=vibrio))+ 
-  geom_density(alpha=0.4)+
-  theme_light()+
+  geom_density(alpha=0.25)+
+  theme_classic()+
+  scale_fill_grey()+
   scale_x_log10(breaks = c(1,10,100,1000),
                 labels = c("1" = "1","10" = "10","100"="100","1000"="1000"))+
-  labs(title=expression(beta[0]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[0], ": baseline microbial concentration")),x = "", y = "")+
+  theme(legend.justification=c(1,0), legend.position=c(1,0.9))+
+  theme(legend.title=element_blank())+
+  theme(plot.title = element_text(hjust = 0))
 p1 <- ggplot(b1, aes(x=values, fill=vibrio))+ 
-  geom_density(alpha=0.4)+
-  theme_light()+
+  geom_density(alpha=0.25)+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(legend.position="none")+
   xlim(0,3)+
-  labs(title=expression(beta[1]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[1], ": intertidal rack and bag")),x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))
+(p0 / p1)
 p2 <- ggplot(b2, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(legend.position="none")+
   xlim(0,3)+
   labs(title=expression(beta[2]),x = "", y = "")+
   theme(plot.title = element_text(hjust = 0.5))
 p3 <- ggplot(b3, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(legend.position="none")+
   xlim(0,3)+
   labs(title=expression(beta[3]),x = "", y = "")+
   theme(plot.title = element_text(hjust = 0.5))
 p4 <- ggplot(b4, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(legend.position="none")+
   xlim(0,3)+
   labs(title=expression(beta[4]),x = "", y = "")+
   theme(plot.title = element_text(hjust = 0.5))
 p5 <- ggplot(b5, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(legend.position="none")+
   xlim(0,3)+
   labs(title=expression(beta[5]),x = "", y = "")+
   theme(plot.title = element_text(hjust = 0.5))
 (p0 / p1 / p2 / p3 / p4 / p5)
+
+
+
+
