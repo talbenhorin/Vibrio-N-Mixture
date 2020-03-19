@@ -122,15 +122,14 @@ out5 <- data.frame(
 b5 <- stack(out5,select=c('Total Vp','Pathogenic Vp'))
 names(b5) <- c("values","vibrio")
 
-
 p0 <- ggplot(b0, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.25)+
   theme_classic()+
   scale_fill_grey()+
   scale_x_log10(breaks = c(1,10,100,1000),
                 labels = c("1" = "1","10" = "10","100"="100","1000"="1000"))+
-  labs(title=expression(paste(beta[0], ": baseline microbial concentration")),x = "", y = "")+
-  theme(legend.justification=c(1,0), legend.position=c(1,0.9))+
+  labs(title=expression(paste(beta[0], ": baseline microbial concentration")),x = expression(CFU~g^-1), y = "")+
+  theme(legend.justification=c(1,0), legend.position=c(1,0.8))+
   theme(legend.title=element_blank())+
   theme(plot.title = element_text(hjust = 0))
 p1 <- ggplot(b1, aes(x=values, fill=vibrio))+ 
@@ -140,42 +139,50 @@ p1 <- ggplot(b1, aes(x=values, fill=vibrio))+
   theme(legend.position="none")+
   xlim(0,3)+
   labs(title=expression(paste(beta[1], ": intertidal rack and bag")),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0))
-(p0 / p1)
+  theme(plot.title = element_text(hjust = 0))+
+  geom_vline(xintercept = 1, linetype="dotted", 
+             color = "black", size=1)
 p2 <- ggplot(b2, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_classic()+
   scale_fill_grey()+
   theme(legend.position="none")+
   xlim(0,3)+
-  labs(title=expression(beta[2]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[2], ": low tide")),x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))+
+  geom_vline(xintercept = 1, linetype="dotted", 
+             color = "black", size=1)
 p3 <- ggplot(b3, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_classic()+
   scale_fill_grey()+
   theme(legend.position="none")+
   xlim(0,3)+
-  labs(title=expression(beta[3]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[3], ": intertidal rack and bag * low tide")),x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))+
+  geom_vline(xintercept = 1, linetype="dotted", 
+           color = "black", size=1)
 p4 <- ggplot(b4, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_classic()+
   scale_fill_grey()+
   theme(legend.position="none")+
   xlim(0,3)+
-  labs(title=expression(beta[4]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[4], ": moderate salinity")),x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))+
+  geom_vline(xintercept = 1, linetype="dotted", 
+             color = "black", size=1)
 p5 <- ggplot(b5, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_classic()+
   scale_fill_grey()+
   theme(legend.position="none")+
+  theme(plot.title = element_text(hjust = 0))+
   xlim(0,3)+
-  labs(title=expression(beta[5]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title=expression(paste(beta[5], ": high salinity")),x = "Incidence rate ratio", y = "")+
+  geom_vline(xintercept = 1, linetype="dotted", 
+             color = "black", size=1)
 (p0 / p1 / p2 / p3 / p4 / p5)
-
 
 
 
