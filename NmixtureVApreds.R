@@ -40,13 +40,13 @@ cat(
 )
 
 # Initial params BOTH YEARS
-pred.inits <- list(list("MPN"=numeric(71)+10),
-                   list("MPN"=numeric(71)+5),
-                   list("MPN"=numeric(71)+20))
+pred.inits <- list(list("MPN"=numeric(71)+1),
+                   list("MPN"=numeric(71)+2),
+                   list("MPN"=numeric(71)+3))
 
 parameters <- c("MPN")
 
-vibrio <- list(c=dat$vvha,v=dat$volume,samp=dat$fid)
+vibrio <- list(c=dat$path,v=dat$volume,samp=dat$fid)
 
 m.base <- jags(data = vibrio,
                inits = pred.inits,
