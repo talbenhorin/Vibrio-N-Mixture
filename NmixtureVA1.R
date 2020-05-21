@@ -57,7 +57,7 @@ cat(
       
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
-      log(lambda[i]) <- b0 + b1*temp[i] + b2*pheo[i] + b3*temp[i]*pheo[i] + U[site[i]] + V[samp[i]]
+      log(lambda[i]) <- b0 + b1*temp[i] + b2*chlo[i] + b3*temp[i]*chlo[i] + U[site[i]] + V[samp[i]]
       log.like[i] <- log(pbin(c[i],p[i],3))*log(ppois(MPN[i],lambda[i]))
     }
     for (s in 1:3) {
@@ -103,9 +103,9 @@ m.base <- jags(data = Vp.path,
                n.iter = 10000,
                n.burnin = 1000,
                n.thin = 3)
-m.full <- jags(data = Vp.path,
+m.full <- jags(data = Vp.total,
                inits = full.inits,
-               parameters.to.save = parameters,
+               parameters.to.save = pfull,
                model.file = "full.jag",
                n.chains = 3,
                n.iter = 10000,
