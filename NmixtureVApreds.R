@@ -20,19 +20,19 @@ library(patchwork)
 library(scales)
 library(ggdistribute)
 
-dat <- read.csv("vaAllwater.csv", fill = FALSE, header = TRUE) 
+dat <- read.csv("vaoyster.csv", fill = FALSE, header = TRUE) 
 
 # Base and Full N-Mixture model for serial dilution data 
 cat(
   "model{
-    for (i in 1:444) {
+    for (i in 1:1796) {
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[samp[i]]*v[i])
       
       # Biological model for microbial abundance
     }
-    for (s in 1:71) {
+    for (s in 1:288) {
       MPN[s] ~ dgamma(0.1,0.1)
     }
   }",
@@ -40,13 +40,13 @@ cat(
 )
 
 # Initial params BOTH YEARS
-pred.inits <- list(list("MPN"=numeric(71)+1),
-                   list("MPN"=numeric(71)+2),
-                   list("MPN"=numeric(71)+3))
+pred.inits <- list(list("MPN"=numeric(288)+1),
+                   list("MPN"=numeric(288)+2),
+                   list("MPN"=numeric(288)+3))
 
 parameters <- c("MPN")
 
-vibrio <- list(c=dat$path,v=dat$volume,samp=dat$fid)
+vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid)
 
 m.base <- jags(data = vibrio,
                inits = pred.inits,
@@ -61,4 +61,4 @@ out<-MCMCpstr(m.base,
               params = parameters,
               func = median,
               type = 'summary')
-
+write.csv(out,file = "output.csv", row.names = FALSE)
