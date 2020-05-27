@@ -25,7 +25,7 @@ dat <- read.csv("vaoyster.csv", fill = FALSE, header = TRUE)
 # N-Mixture model for serial dilution data 
 cat(
   "model{
-    for (i in 1:11796) {
+    for (i in 1:1796) {
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[i]*v[i])
