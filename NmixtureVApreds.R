@@ -20,33 +20,33 @@ library(patchwork)
 library(scales)
 library(ggdistribute)
 
-dat <- read.csv("vaoyster.csv", fill = FALSE, header = TRUE) 
+dat <- read.csv("vaPilFwater.csv", fill = FALSE, header = TRUE) 
 
 # Base and Full N-Mixture model for serial dilution data 
 cat(
   "model{
-    for (i in 1:1796) {
+    for (i in 1:351) {
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[samp[i]]*v[i])
       
       # Biological model for microbial abundance
     }
-    for (s in 1:288) {
-      MPN[s] ~ dgamma(0.1,0.1)
+    for (s in 1:57) {
+      MPN[s] ~ dunif(0.1,100000)
     }
   }",
   file="pred.jag"
 )
 
 # Initial params BOTH YEARS
-pred.inits <- list(list("MPN"=numeric(288)+1),
-                   list("MPN"=numeric(288)+2),
-                   list("MPN"=numeric(288)+3))
+pred.inits <- list(list("MPN"=numeric(57)+10),
+                   list("MPN"=numeric(57)+10),
+                   list("MPN"=numeric(57)+10))
 
 parameters <- c("MPN")
 
-vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid)
+vibrio <- list(c=dat$vvha,v=dat$volume,samp=dat$fid)
 
 m.base <- jags(data = vibrio,
                inits = pred.inits,
