@@ -32,7 +32,8 @@ cat(
       
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
-      log(lambda[i]) <- b0 + b1*W[water[i]] + U[site[i]] + V[samp[i]]
+      log(lambda[i]) <- b0 + b1*W[water[i]] + b2*temp[i] + U[site[i]] + V[samp[i]]
+      log.like[i] <- log(pbin(c[i],p[i],3))*log(ppois(MPN[i],lambda[i]))
     }
     for (s in 1:4) {
       U[s] ~ dnorm(0,tau_U)
@@ -47,27 +48,28 @@ cat(
     tau_V ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
     b1 ~ dnorm(0,0.1)
+    b2 ~ dnorm(0,0.1)
   }",
   file="water.jag"
 )
 
 # Initial params BOTH YEARS
-inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
-                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
-                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
+inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0),
+                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0),
+                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0))
 
-pfull <- c("b0","b1")
+pfull <- c("b0","b1","b2","log.like")
 
-in.data <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.path) #data string
+in.data <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.path,temp=dat$temp) #data string
 
 m.base <- jags(data = in.data,
                inits = inits,
                parameters.to.save = pfull,
                model.file = "water.jag",
                n.chains = 3,
-               n.iter = 7000,
+               n.iter = 10000,
                n.burnin = 1000,
                n.thin = 3)
 
-
+m.waic <- waic(m.base$BUGSoutput$sims.list$log.like)
 
