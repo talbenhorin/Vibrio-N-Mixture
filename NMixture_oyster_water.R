@@ -37,11 +37,11 @@ cat(
     for (s in 1:4) {
       U[s] ~ dnorm(0,tau_U)
     }
-    for (t in 1:228) {
+    for (t in 1:284) {
       V[t] ~ dnorm(0,tau_V)
     }
-    for (w in 1:57) {
-      W[w] ~ dnorm(mu_w[w],tau_w[w])
+    for (w in 1:71) {
+      W[w] <- mu_w[w]
     }
     tau_U ~ dgamma(0.1,0.1)
     tau_V ~ dgamma(0.1,0.1)
@@ -52,13 +52,13 @@ cat(
 )
 
 # Initial params BOTH YEARS
-inits <- list(list("U"=numeric(4),"V"=numeric(228),"W"=1+numeric(57),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
-                   list("U"=numeric(4),"V"=numeric(228),"W"=1+numeric(57),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
-                   list("U"=numeric(4),"V"=numeric(228),"W"=1+numeric(57),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
+inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
 
 pfull <- c("b0","b1")
 
-in.data <- list(c=dat$pilf,v=dat$mass,samp=dat$fid.new,site=dat$site,water=dat$water,mu_w=dat$water.plif,tau_w=dat$pilf.pre) #data string
+in.data <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.path) #data string
 
 m.base <- jags(data = in.data,
                inits = inits,
