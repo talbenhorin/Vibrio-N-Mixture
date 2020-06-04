@@ -53,13 +53,13 @@ cat(
 )
 
 # Initial params BOTH YEARS
-inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
+inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=-0),
                    list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
                    list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
 
 pfull <- c("b0","b1","log.like")
 
-in.data <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.tlh) #data string
+in.data <- list(c=dat$vvha,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.vvha) #data string
 
 m.base <- jags(data = in.data,
                inits = inits,
@@ -72,3 +72,9 @@ m.base <- jags(data = in.data,
 
 m.waic <- waic(m.base$BUGSoutput$sims.list$log.like)
 
+out <-MCMCpstr(m.base,
+              params = pfull,
+              func = median,
+              type = 'summary')
+b0.95 <- hdi(m.base$BUGSoutput$sims.list$b0)
+b1.95 <- hdi(m.base$BUGSoutput$sims.list$b1)
