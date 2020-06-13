@@ -20,47 +20,46 @@ library(patchwork)
 library(scales)
 library(ggdistribute)
 
-dat <- read.csv("vaoyster.csv", fill = FALSE, header = TRUE) 
+dat <- read.csv("vaoysterpilf.csv", fill = FALSE, header = TRUE) 
 
 # N-Mixture model for serial dilution data 
 cat(
   "model{
-    for (i in 1:1796) {
+    for (i in 1:1404) {
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[i]*v[i])
       
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
-      log(lambda[i]) <- b0 + b1*W[water[i]] + b2*temp[i] + U[site[i]] + V[samp[i]]
+      log(lambda[i]) <- b0 + b1*W[water[i]] + U[site[i]] + V[samp[i]]
       log.like[i] <- log(pbin(c[i],p[i],3))*log(ppois(MPN[i],lambda[i]))
     }
     for (s in 1:4) {
       U[s] ~ dnorm(0,tau_U)
     }
-    for (t in 1:284) {
+    for (t in 1:228) {
       V[t] ~ dnorm(0,tau_V)
     }
-    for (w in 1:71) {
+    for (w in 1:57) {
       W[w] <- mu_w[w]
     }
     tau_U ~ dgamma(0.1,0.1)
     tau_V ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
     b1 ~ dnorm(0,0.1)
-    b2 ~ dnorm(0,0.1)
   }",
   file="water.jag"
 )
 
 # Initial params BOTH YEARS
-inits <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0),
-                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0),
-                   list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0,"b2"=0))
+inits <- list(list("U"=numeric(4),"V"=numeric(228),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(228),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(228),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
 
-pfull <- c("b0","b1","b2","log.like")
+pfull <- c("b0","b1","log.like")
 
-in.data <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.path,temp=dat$temp) #data string
+in.data <- list(c=dat$pilf,v=dat$mass,samp=dat$fid.new,site=dat$site,water=dat$water,mu_w=dat$water.plif,temp=dat$temp) #data string
 
 m.base <- jags(data = in.data,
                inits = inits,
