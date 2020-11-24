@@ -9,6 +9,7 @@ rm(list=ls(all=TRUE))
 #install.packages("hdi")
 #install.packages("MCMCvis")
 #install.packages("patchwork")
+#install.packages("ggdistribute")
 
 library(R2jags)
 library(loo)
@@ -17,6 +18,7 @@ library(MCMCvis)
 library(ggplot2)
 library(patchwork)
 library(scales)
+library(ggdistribute)
 
 dat <- read.csv("seagrantvibrio.csv", fill = FALSE, header = TRUE) 
 
@@ -120,42 +122,89 @@ out5 <- data.frame(
 b5 <- stack(out5,select=c('Total','Pathogenic'))
 names(b5) <- c("values","vibrio")
 
-
 p0 <- ggplot(b0, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
   theme_classic()+
-  scale_x_log10(breaks = c(1,10,100,1000,10000),
-                labels = c("1" = "1","10" = "10","100"="100","1000"="1000","10000"="10000"))+
-  labs(title=expression(beta[0]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  scale_fill_grey()+
+  scale_x_log10(breaks = c(1,10,100,1000),
+                labels = c("1" = "1","10" = "10","100"="100","1000"="1000"))+
+  labs(x = expression(CFU~g^-1), y = "")+
+  theme(text=element_text(size=14,  family="Helvetica"))+
+  theme(legend.justification=c(1,0), legend.position=c(0.19,0.65))+
+  theme(legend.title=element_blank())+
+  theme(plot.title = element_text(hjust = 0),
+        axis.ticks.y=element_blank(),
+        axis.text.y=element_blank())
+
 p1 <- ggplot(b1, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_void()+
+  scale_fill_grey()+
+  theme(
+    legend.position="none",strip.text.y=element_text(angle=0, hjust=0.5),
+    panel.border=element_rect(fill=NA, color = "white", size=0.67),
+    plot.margin=margin(t=2, r=4, b=2, l=2, unit="pt"),
+    panel.grid=element_blank(), panel.ontop=FALSE, axis.title.y=element_blank())+
   xlim(0,3)+
-  labs(title=expression(beta[1]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))
+
 p2 <- ggplot(b2, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_void()+
+  scale_fill_grey()+
+  theme(
+    legend.position="none",strip.text.y=element_text(angle=0, hjust=0.5),
+    panel.border=element_rect(fill=NA, color = "white", size=0.67),
+    plot.margin=margin(t=2, r=4, b=2, l=2, unit="pt"),
+    panel.grid=element_blank(), panel.ontop=FALSE, axis.title.y=element_blank())+
   xlim(0,3)+
-  labs(title=expression(beta[2]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))
+
 p3 <- ggplot(b3, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_void()+
+  scale_fill_grey()+
+  theme(
+    legend.position="none",strip.text.y=element_text(angle=0, hjust=0.5),
+    panel.border=element_rect(fill=NA, color = "white", size=0.67),
+    plot.margin=margin(t=2, r=4, b=2, l=2, unit="pt"),
+    panel.grid=element_blank(), panel.ontop=FALSE, axis.title.y=element_blank())+
   xlim(0,3)+
-  labs(title=expression(beta[3]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))
+
 p4 <- ggplot(b4, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_void()+
+  scale_fill_grey()+
+  theme(
+    legend.position="none",strip.text.y=element_text(angle=0, hjust=0.5),
+    panel.border=element_rect(fill=NA, color = "white", size=0.67),
+    plot.margin=margin(t=2, r=4, b=2, l=2, unit="pt"),
+    panel.grid=element_blank(), panel.ontop=FALSE, axis.title.y=element_blank())+
   xlim(0,3)+
-  labs(title=expression(beta[4]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
-p5 <- ggplot(b5, aes(x=values, fill=vibrio))+ 
+  labs(x = "", y = "")+
+  theme(plot.title = element_text(hjust = 0))
+
+  p5 <- ggplot(b5, aes(x=values, fill=vibrio))+ 
   geom_density(alpha=0.4)+
-  theme_light()+
+  theme_classic()+
+  scale_fill_grey()+
+  theme(
+    text=element_text(size=14,  family="Helvetica"),
+    legend.position="none",strip.text.y=element_text(angle=0, hjust=0.5),
+    panel.border=element_rect(fill=NA, color = "white", size=0.67),
+    plot.margin=margin(t=2, r=4, b=2, l=2, unit="pt"),
+    panel.grid=element_blank(), panel.ontop=FALSE, axis.title.y=element_blank(),
+    axis.ticks.y=element_blank(),
+    axis.text.y=element_blank())+
+  theme(plot.title = element_text(hjust = 0))+
   xlim(0,3)+
-  labs(title=expression(beta[5]),x = "", y = "")+
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(x = expression("Relative Risk"~(e^beta)), y = "")
+
 (p0 / p1 / p2 / p3 / p4 / p5)
+
+
+
