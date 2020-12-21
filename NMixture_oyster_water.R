@@ -25,7 +25,11 @@ dat <- read.csv("va2014water.csv", fill = FALSE, header = TRUE)
 # N-Mixture model for serial dilution data 
 cat(
   "model{
+<<<<<<< HEAD
     for (i in 1:288) {
+=======
+    for (i in 1:1362) {
+>>>>>>> bb652fa6ef87a040c32aeaf636efacea854e4049
       # Observation model across serial dilutions
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[i]*v[i])
@@ -38,9 +42,18 @@ cat(
     for (s in 1:3) {
       U[s] ~ dnorm(0,tau_U)
     }
+<<<<<<< HEAD
     for (t in 1:48) {
       V[t] ~ dnorm(0,tau_V)
     }
+=======
+    for (t in 1:222) {
+      V[t] ~ dnorm(0,tau_V)
+    }
+    for (w in 1:56) {
+      W[w] <- mu_w[w]
+    }
+>>>>>>> bb652fa6ef87a040c32aeaf636efacea854e4049
     tau_U ~ dgamma(0.1,0.1)
     tau_V ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
@@ -50,6 +63,7 @@ cat(
 )
 
 # Initial params BOTH YEARS
+<<<<<<< HEAD
 inits <- list(list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
                    list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
                    list("U"=numeric(3),"V"=numeric(48),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
@@ -57,6 +71,15 @@ inits <- list(list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.1,"tau_V"=0.1,"b0"=0
 pfull <- c("b0","b1","log.like")
 
 in.data <- list(c=dat$Vv.vvha,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,chlo=dat$chlo.t) #data string
+=======
+inits <- list(list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.1,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.01,"tau_V"=0.1,"b0"=0,"b1"=0),
+                   list("U"=numeric(4),"V"=numeric(222),"tau_U"=1,"tau_V"=0.1,"b0"=0,"b1"=0))
+
+pfull <- c("b0","b1","log.like")
+
+in.data <- list(c=dat$pilf,v=dat$mass,samp=dat$fid,site=dat$site,water=dat$water,mu_w=dat$water.vvha) #data string
+>>>>>>> bb652fa6ef87a040c32aeaf636efacea854e4049
 
 m.base <- jags(data = in.data,
                inits = inits,
@@ -75,5 +98,8 @@ m.waic <- waic(m.base$BUGSoutput$sims.list$log.like)
 #              type = 'summary')
 b0.95 <- hdi(m.base$BUGSoutput$sims.list$b0)
 b1.95 <- hdi(m.base$BUGSoutput$sims.list$b1)
+<<<<<<< HEAD
 
+=======
+>>>>>>> bb652fa6ef87a040c32aeaf636efacea854e4049
 
