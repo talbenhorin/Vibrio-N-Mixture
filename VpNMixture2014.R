@@ -5,8 +5,8 @@ library(loo)
 library(HDInterval)
 library(MCMCvis)
 
-dat <- read.csv("yr2seagrantvibrio.csv", fill = FALSE, header = TRUE) 
-m1.dat<-list(c=dat$tlh,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$tmax)
+dat <- read.csv("vaAllwater.csv", fill = FALSE, header = TRUE) 
+m1.dat<-list(c=dat$,v=dat$mass,samp=dat$samp,gear=dat$gear,tide=dat$tmax)
 
 # N-Mixture model for serial dilution data 
 cat(
