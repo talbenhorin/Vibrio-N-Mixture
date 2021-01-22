@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaAllwater.csv", fill = FALSE, header = TRUE) 
-Vv.total <- list(c=dat$Vv.vvha,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, total vibrio
+Vp.total <- list(c=dat$Vp.tlh,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, total vibrio
 Vv.path <-list(c=dat$Vv.PilF,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, pathogenic vibrio
 
 # log.like[i] <- log(pbin(c[i],p[i],3))*log(ppois(MPN[i],lambda[i]))
@@ -58,8 +58,7 @@ cat(
 
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
-      log(lambda[i]) <- b0 + b1*pheo[i] +  U[site[i]] + V[samp[i]]
-      
+      log(lambda[i]) <- b0 + b1*temp[i] + b2*pheo[i] + b3*temp[i]*pheo[i] + U[site[i]] + V[samp[i]]
     }
     for (s in 1:3) {
       U[s] ~ dnorm(0,tau_U)
@@ -71,6 +70,8 @@ cat(
     tau_V ~ dgamma(0.1,0.1)
     b0 ~ dnorm(0,0.1)
     b1 ~ dnorm(0,0.1)
+    b2 ~ dnorm(0,0.1)
+    b3 ~ dnorm(0,0.1)
     #sum log likihoods for loo
     log.like <- sum(like)
     
@@ -79,13 +80,17 @@ cat(
 )
 
 # Initial params BOTH YEARS
-base.inits <- list(list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.1,"tau_V"=0.1,"b0"=1,"b1"=0),
-                   list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0),
-                   list("U"=numeric(3),"V"=numeric(48),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0))
+base.inits <- list(list("b0"=1),
+                   list("b0"=1),
+                   list("b0"=1))
+
+base.inits <- list(list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
+                   list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
+                   list("U"=numeric(3),"V"=numeric(48),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0))
 
 params <- c("log.like")
 
-m <- jags(data = Vv.total,
+m <- jags(data = Vp.total,
                inits = base.inits,
                parameters.to.save = params,
                model.file = "model1.jag",
