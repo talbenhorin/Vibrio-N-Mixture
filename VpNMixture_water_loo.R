@@ -20,10 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaAllwater.csv", fill = FALSE, header = TRUE) 
-Vp.total <- list(c=dat$Vp.tlh,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, total vibrio
-Vv.path <-list(c=dat$Vv.PilF,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, pathogenic vibrio
-
-# log.like[i] <- log(pbin(c[i],p[i],3))*log(ppois(MPN[i],lambda[i]))
+vibrio <- list(c=dat$Vp.path,v=dat$Sample.Volume,samp=dat$FID,site=dat$Site.Num,temp=dat$temp.t,pheo=dat$pheo.t,turb=dat$turb.t,chlo=dat$chlo.t) #data string, total vibrio
 
 # Base and Full N-Mixture model for serial dilution data 
 cat(
@@ -53,9 +50,6 @@ cat(
       c[i] ~ dbin(p[i],3)
       p[i] <- 1-exp(-MPN[i]*v[i])
       
-      # likelihood function for loo
-      like[i] <- log(pbin(c[i],p[i],3))
-
       # Biological model for microbial abundance
       MPN[i] ~ dpois(lambda[i])
       log(lambda[i]) <- b0 + b1*temp[i] + b2*pheo[i] + b3*temp[i]*pheo[i] + U[site[i]] + V[samp[i]]
@@ -72,9 +66,6 @@ cat(
     b1 ~ dnorm(0,0.1)
     b2 ~ dnorm(0,0.1)
     b3 ~ dnorm(0,0.1)
-    #sum log likihoods for loo
-    log.like <- sum(like)
-    
   }",
   file="model1.jag"
 )
@@ -88,9 +79,9 @@ base.inits <- list(list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.1,"tau_V"=0.1,"
                    list("U"=numeric(3),"V"=numeric(48),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
                    list("U"=numeric(3),"V"=numeric(48),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0))
 
-params <- c("log.like")
+params <- c("b2")
 
-m <- jags(data = Vp.total,
+m <- jags(data = vibrio,
                inits = base.inits,
                parameters.to.save = params,
                model.file = "model1.jag",
@@ -100,7 +91,10 @@ m <- jags(data = Vp.total,
                n.thin = 3)
 
 m.parmlist <- m$BUGSoutput$sims.list
-m.loglike <- m.parmlist$log.like 
+m.b2 <- m.parmlist$b2 
+m.P <- 1 - length(m.b2[m.b2>0])/length(m.b2)
+m
+
 m.loo <- loo(m.loglike, r_eff = NA)
 m.loo
 
