@@ -19,7 +19,7 @@ library(patchwork)
 library(scales)
 library(bayesplot)
 
-dat <- read.csv("vaoysterwaterpilf.csv", fill = FALSE, header = TRUE) 
+dat <- read.csv("vaoysterwater.csv", fill = FALSE, header = TRUE) 
 vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.path) #data string, total vibrio
 
 cat(
