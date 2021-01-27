@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaoysterwater.csv", fill = FALSE, header = TRUE) 
-vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.tlh) #data string, total vibrio
+vibrio <- list(c=dat$vvha,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.vvha) #data string, total vibrio
 
 cat(
   "model{
@@ -203,9 +203,9 @@ params.m2 <- c("log.like","b0","b1","b2")
 params.m3 <- c("log.like","b0","b1","b2","b3")
 
 m <- jags(data = vibrio,
-          inits = inits.m3,
-          parameters.to.save = params.m3,
-          model.file = "m3.jag",
+          inits = inits.base,
+          parameters.to.save = params.base,
+          model.file = "base.jag",
           n.chains = 3,
           n.iter = 10000,
           n.burnin = 1000,
