@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaoysterwaterpilf.csv", fill = FALSE, header = TRUE) 
-vibrio <- list(c=dat$pilf,v=dat$mass,samp=dat$new.fid,site=dat$site,temp=dat$stan.temp,water=dat$new.water,watervib=dat$stan.pilf) #data string, total vibrio
+vibrio <- list(c=dat$pilf,v=dat$mass,samp=dat$new.fid,site=dat$site,temp=dat$stan.temp,water=dat$new.water,watervib=dat$stan.vvha) #data string, total vibrio
 
 cat(
   "model{
@@ -196,11 +196,11 @@ inits.m3 <- list(list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.1,"tau_V"=0.1,"b
                  list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
                  list("U"=numeric(4),"V"=numeric(222),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0))
 
-params.base <- c("log.like","b0")
-params.m0 <- c("log.like","b0")
-params.m1 <- c("log.like","b0","b1")
-params.m2 <- c("log.like","b0","b1","b2")
-params.m3 <- c("log.like","b0","b1","b2","b3")
+params.base <- c("b0")
+params.m0 <- c("b0")
+params.m1 <- c("b0","b1")
+params.m2 <- c("b0","b1","b2")
+params.m3 <- c("b0","b1","b2","b3")
 
 m <- jags(data = vibrio,
           inits = inits.m3,
@@ -212,11 +212,26 @@ m <- jags(data = vibrio,
           n.thin = 3)
 
 m.parmlist <- m$BUGSoutput$sims.list
-m.loglike <- m.parmlist$log.like
 
-m.loo <- loo(m.loglike, r_eff = NA)
-m.loo
-m.mcmc <- as.mcmc(m)
-m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
-                     multivariate=TRUE)
-m.gel
+# LOO
+#m.loglike <- m.parmlist$log.like
+#m.loo <- loo(m.loglike, r_eff = NA)
+#m.loo
+#m.mcmc <- as.mcmc(m)
+#m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
+#                     multivariate=TRUE)
+#m.gel
+
+# Parameter estimates and P
+m.b0 <- m.parmlist$b0 
+m.b0.P <- 1 - length(m.b0[m.b0>0])/length(m.b0)
+
+m.b1 <- m.parmlist$b1 
+m.b1.P <- 1 - length(m.b1[m.b1>0])/length(m.b1)
+
+m.b2 <- m.parmlist$b2 
+m.b2.P <- 1 - length(m.b2[m.b2>0])/length(m.b2)
+
+m.b3 <- m.parmlist$b3
+m.b3.P <- 1 - length(m.b3[m.b3>0])/length(m.b3)
+m
