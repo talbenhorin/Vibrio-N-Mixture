@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaoysterwater.csv", fill = FALSE, header = TRUE) 
-vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.tlh) #data string, total vibrio
+vibrio <- list(c=dat$tlh,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.tlh) #data string, total vibrio
 
 cat(
   "model{
@@ -196,6 +196,7 @@ inits.m3 <- list(list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.1,"tau_V"=0.1,"b
                  list("U"=numeric(4),"V"=numeric(284),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
                  list("U"=numeric(4),"V"=numeric(284),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0))
 
+params.loglike <- ("log.like")
 params.base <- c("b0")
 params.m0 <- c("b0")
 params.m1 <- c("b0","b1")
@@ -203,9 +204,9 @@ params.m2 <- c("b0","b1","b2")
 params.m3 <- c("b0","b1","b2","b3")
 
 m <- jags(data = vibrio,
-          inits = inits.m3,
-          parameters.to.save = params.m3,
-          model.file = "m3.jag",
+          inits = inits.m0,
+          parameters.to.save = params.loglike,
+          model.file = "m0.jag",
           n.chains = 3,
           n.iter = 10000,
           n.burnin = 1000,
@@ -214,13 +215,13 @@ m <- jags(data = vibrio,
 m.parmlist <- m$BUGSoutput$sims.list
 
 # LOO
-#m.loglike <- m.parmlist$log.like
-#m.loo <- loo(m.loglike, r_eff = NA)
-#m.loo
-#m.mcmc <- as.mcmc(m)
-#m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
-#                     multivariate=TRUE)
-#m.gel
+m.loglike <- m.parmlist$log.like
+m.loo <- loo(m.loglike, r_eff = NA)
+m.loo
+m.mcmc <- as.mcmc(m)
+m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
+                     multivariate=TRUE)
+m.gel
 
 # Parameter estimates and P
 m.b0 <- m.parmlist$b0 
