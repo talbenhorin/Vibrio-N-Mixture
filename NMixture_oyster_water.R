@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaoysterwater.csv", fill = FALSE, header = TRUE) 
-vibrio <- list(c=dat$path,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.tlh) #data string, total vibrio
+vibrio <- list(c=dat$vvha,v=dat$mass,samp=dat$fid,site=dat$site,temp=dat$stan.temp,water=dat$water,watervib=dat$stan.vvha) #data string, total vibrio
 
 cat(
   "model{
@@ -205,7 +205,7 @@ params.m3 <- c("b0","b1","b2","b3")
 
 m <- jags(data = vibrio,
           inits = inits.m3,
-          parameters.to.save = params.loglike,
+          parameters.to.save = params.m3,
           model.file = "m3.jag",
           n.chains = 3,
           n.iter = 10000,
@@ -215,13 +215,13 @@ m <- jags(data = vibrio,
 m.parmlist <- m$BUGSoutput$sims.list
 
 # LOO
-m.loglike <- m.parmlist$log.like
-m.loo <- loo(m.loglike, r_eff = NA)
-m.loo
-m.mcmc <- as.mcmc(m)
-m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
-                     multivariate=TRUE)
-m.gel
+#m.loglike <- m.parmlist$log.like
+#m.loo <- loo(m.loglike, r_eff = NA)
+#m.loo
+#m.mcmc <- as.mcmc(m)
+#m.gel <- gelman.diag(m.mcmc, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
+#                     multivariate=TRUE)
+#m.gel
 
 # Parameter estimates and P
 m.b0 <- m.parmlist$b0 
@@ -234,5 +234,26 @@ m.b2 <- m.parmlist$b2
 m.b2.P <- 1 - length(m.b2[m.b2>0])/length(m.b2)
 
 m.b3 <- m.parmlist$b3
-m.b3.P <- 1 - length(m.b3[m.b3<0])/length(m.b3)
-m
+m.b3.P <- 1 - length(m.b3[m.b3>0])/length(m.b3)
+
+out<-MCMCpstr(m,
+              params = params.m1,
+              func = median,
+              type = 'summary')
+out95<-hdi(list(m$BUGSoutput$sims.list$b0,
+                m$BUGSoutput$sims.list$b1,
+                m$BUGSoutput$sims.list$b2,
+                m$BUGSoutput$sims.list$b3))
+
+# output file
+med <- rbind(out[1],out[2])
+lower <- rbind(out95[[1]][1,],
+               out95[[2]][1,],
+               out95[[3]][1,],
+               out95[[4]][1,])
+upper <- rbind(out95[[1]][2,],
+               out95[[2]][2,],
+               out95[[3]][2,],
+               out95[[4]][2,])
+Iwant <-data.frame(as.numeric(med), lower, upper)   
+Iwant
