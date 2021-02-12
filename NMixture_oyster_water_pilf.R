@@ -20,7 +20,7 @@ library(scales)
 library(bayesplot)
 
 dat <- read.csv("vaoysterwaterpilf.csv", fill = FALSE, header = TRUE) 
-vibrio <- list(c=dat$pilf,v=dat$mass,samp=dat$new.fid,site=dat$site,temp=dat$stan.temp,water=dat$new.water,watervib=dat$stan.vvha) #data string, total vibrio
+vibrio <- list(c=dat$pilf,v=dat$mass,samp=dat$new.fid,site=dat$site,temp=dat$stan.temp,water=dat$new.water,watervib=dat$stan.pilf) #data string, total vibrio
 
 cat(
   "model{
@@ -196,6 +196,7 @@ inits.m3 <- list(list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.1,"tau_V"=0.1,"b
                  list("U"=numeric(4),"V"=numeric(222),"tau_U"=0.01,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0),
                  list("U"=numeric(4),"V"=numeric(222),"tau_U"=1,"tau_V"=0.1,"b0"=1,"b1"=0,"b2"=0,"b3"=0))
 
+params.loglike <- ("log.like")
 params.base <- c("b0")
 params.m0 <- c("b0")
 params.m1 <- c("b0","b1")
@@ -223,6 +224,7 @@ m.parmlist <- m$BUGSoutput$sims.list
 #m.gel
 
 # Parameter estimates and P
+# Parameter estimates and P
 m.b0 <- m.parmlist$b0 
 m.b0.P <- 1 - length(m.b0[m.b0>0])/length(m.b0)
 
@@ -234,4 +236,25 @@ m.b2.P <- 1 - length(m.b2[m.b2>0])/length(m.b2)
 
 m.b3 <- m.parmlist$b3
 m.b3.P <- 1 - length(m.b3[m.b3>0])/length(m.b3)
-m
+
+out<-MCMCpstr(m,
+              params = params.m1,
+              func = median,
+              type = 'summary')
+out95<-hdi(list(m$BUGSoutput$sims.list$b0,
+                m$BUGSoutput$sims.list$b1,
+                m$BUGSoutput$sims.list$b2,
+                m$BUGSoutput$sims.list$b3))
+
+# output file
+med <- rbind(out[1],out[2])
+lower <- rbind(out95[[1]][1,],
+               out95[[2]][1,],
+               out95[[3]][1,],
+               out95[[4]][1,])
+upper <- rbind(out95[[1]][2,],
+               out95[[2]][2,],
+               out95[[3]][2,],
+               out95[[4]][2,])
+Iwant <-data.frame(as.numeric(med), lower, upper)   
+Iwant
